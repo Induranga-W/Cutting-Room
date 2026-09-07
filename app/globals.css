@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+:root {
+  --void: #261f41;
+  --panel: #1b1a20;
+  --panel-raised: #232129;
+  --line: #322f3a;
+  --text: #ede8e0;
+  --muted: #948e9c;
+  --rec: #e23d28;
+  --done: #5fbf82;
+  --error: #ff6b57;
+  --amber: #e8a33d;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background: var(--void);
+  color: var(--text);
+  font-family: ui-sans-serif, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.font-mono-tc {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+/* Sprocket-hole strip, like a physical filmstrip edge */
+.sprockets {
+  background-image: radial-gradient(circle, var(--line) 2.5px, transparent 2.5px);
+  background-size: 22px 100%;
+  background-position: 11px center;
+  background-repeat: repeat-x;
+  height: 14px;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--panel);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 4px;
+}
+
+@keyframes blink-rec {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+.blink {
+  animation: blink-rec 1.1s ease-in-out infinite;
+}
