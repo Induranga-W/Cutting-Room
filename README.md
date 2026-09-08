@@ -7,6 +7,7 @@ part of video editing — cutting, transitions, captions, music, color, and
 final export — so you don't have to do it by hand.
 
 ```
+<<<<<<< HEAD
    Raw clips  +  optional script  +  optional music
                         │
                         ▼
@@ -16,6 +17,17 @@ final export — so you don't have to do it by hand.
                         │
                         ▼
          One finished, platform-ready video
+=======
+  📹 Raw clips  +  📝 optional script  +  🎵 optional music
+                        │
+                        ▼
+              ┌───────────────────┐
+              │   🎞️  CUTTING ROOM │
+              └───────────────────┘
+                        │
+                        ▼
+        📱 One finished, platform-ready video
+>>>>>>> dc0401b3487cf337ef765c038d1d9920a4ffaa07
 ```
 
 > This is a Next.js (JavaScript/TypeScript) rewrite of an earlier Python
@@ -32,12 +44,21 @@ for the previous one to hand off their work:
 
 ```mermaid
 flowchart LR
+<<<<<<< HEAD
     A["📝 Script Bot\n(plans the scenes)"] --> B[" Cutter Bot\n(trims clips)"]
     B --> C[" Transition Bot\n(joins the cuts)"]
     C --> D[" Caption Bot\n(adds subtitles)"]
     D --> E[" Audio Bot\n(mixes music)"]
     E --> F[" Color Bot\n(applies a look)"]
     F --> G[" Export Bot\n(final render)"]
+=======
+    A["📝 Script Bot\n(plans the scenes)"] --> B["✂️ Cutter Bot\n(trims clips)"]
+    B --> C["🔀 Transition Bot\n(joins the cuts)"]
+    C --> D["💬 Caption Bot\n(adds subtitles)"]
+    D --> E["🎵 Audio Bot\n(mixes music)"]
+    E --> F["🎨 Color Bot\n(applies a look)"]
+    F --> G["📤 Export Bot\n(final render)"]
+>>>>>>> dc0401b3487cf337ef765c038d1d9920a4ffaa07
 
     style A fill:#2b2438,stroke:#a78bfa,color:#fff
     style B fill:#1f2937,stroke:#60a5fa,color:#fff
@@ -50,6 +71,7 @@ flowchart LR
 
 | Bot | What it's doing, in plain English |
 |---|---|
+<<<<<<< HEAD
 |  **Script Bot** | *Only runs if you paste in a script.* Reads your script and decides pacing — which clip goes where, how long each shot should be, and where to put the "hook" that grabs attention. |
 |  **Cutter Bot** | Trims each clip down to exactly the part it needs, and resizes everything to fit your target platform (e.g. tall for TikTok, wide for YouTube). |
 |  **Transition Bot** | Glues the trimmed clips together — sometimes a hard cut, sometimes a fade or dissolve, depending on the mood of that moment. |
@@ -57,6 +79,15 @@ flowchart LR
 |  **Audio Bot** | If you gave it background music, blends it in under the voice (and quiets the music while someone's talking). If not, it just cleans up the volume levels. |
 |  **Color Bot** | Picks a color "look" (vibrant, cinematic, moody, clean, etc.) that fits the platform and mood, and applies it. |
 |  **Export Bot** | Renders the final file at the right size and quality for YouTube, TikTok, or Reels. |
+=======
+| 📝 **Script Bot** | *Only runs if you paste in a script.* Reads your script and decides pacing — which clip goes where, how long each shot should be, and where to put the "hook" that grabs attention. |
+| ✂️ **Cutter Bot** | Trims each clip down to exactly the part it needs, and resizes everything to fit your target platform (e.g. tall for TikTok, wide for YouTube). |
+| 🔀 **Transition Bot** | Glues the trimmed clips together — sometimes a hard cut, sometimes a fade or dissolve, depending on the mood of that moment. |
+| 💬 **Caption Bot** | Listens to the audio, writes out subtitles, and burns them onto the video. |
+| 🎵 **Audio Bot** | If you gave it background music, blends it in under the voice (and quiets the music while someone's talking). If not, it just cleans up the volume levels. |
+| 🎨 **Color Bot** | Picks a color "look" (vibrant, cinematic, moody, clean, etc.) that fits the platform and mood, and applies it. |
+| 📤 **Export Bot** | Renders the final file at the right size and quality for YouTube, TikTok, or Reels. |
+>>>>>>> dc0401b3487cf337ef765c038d1d9920a4ffaa07
 
 **Nothing here ever breaks the whole job.** If you don't add a script, Script
 Bot just steps aside. If you don't have a Gemini API key set up, the bots
@@ -69,7 +100,11 @@ crashing — you still get a finished video either way.
 
 ```mermaid
 flowchart TB
+<<<<<<< HEAD
     subgraph Browser[" Your Browser"]
+=======
+    subgraph Browser["🖥️ Your Browser"]
+>>>>>>> dc0401b3487cf337ef765c038d1d9920a4ffaa07
         UI["Upload form + live progress screen"]
     end
 
@@ -79,7 +114,11 @@ flowchart TB
         FFMPEG["ffmpeg / ffprobe\n(does the actual video work)"]
     end
 
+<<<<<<< HEAD
     subgraph Cloud[" Google Gemini"]
+=======
+    subgraph Cloud["☁️ Google Gemini"]
+>>>>>>> dc0401b3487cf337ef765c038d1d9920a4ffaa07
         AI["Scene planning · Captions · Color choice"]
     end
 
@@ -140,6 +179,14 @@ npm run dev
 
 Go to **http://localhost:3000** — you'll see the upload screen.
 
+<<<<<<< HEAD
+=======
+```mermaid
+flowchart LR
+    a(("1️⃣ npm install")) --> b(("2️⃣ cp .env.local.example .env.local")) --> c(("3️⃣ add API key")) --> d(("4️⃣ npm run dev")) --> e(("5️⃣ open localhost:3000"))
+```
+
+>>>>>>> dc0401b3487cf337ef765c038d1d9920a4ffaa07
 ---
 
 ## Using it
