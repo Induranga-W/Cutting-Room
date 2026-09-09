@@ -1,5 +1,14 @@
 # Cutting Room
 
+
+![In Development](https://img.shields.io/badge/STATUS-IN%20DEVELOPMENT-E8A33D?style=for-the-badge&logo=progress&logoColor=E8A33D)
+![TypeScript](https://img.shields.io/badge/TYPESCRIPT-000000?style=for-the-badge&logo=typescript&logoColor=3178C6)
+![TailwindCSS](https://img.shields.io/badge/TAILWINDCSS-000000?style=for-the-badge&logo=tailwindcss&logoColor=06B6D4)
+![JavaScript](https://img.shields.io/badge/JAVASCRIPT-000000?style=for-the-badge&logo=javascript&logoColor=F7DF1E)
+![React](https://img.shields.io/badge/REACT-000000?style=for-the-badge&logo=react&logoColor=58C4DC)
+
+---------------------------------
+
 **Upload your raw video clips → get back a finished, edited video.**
 
 Cutting Room is a little pipeline of specialist "bots" that each handle one
@@ -11,7 +20,7 @@ final export — so you don't have to do it by hand.
                         │
                         ▼
               ┌──────────────────────┐
-              │     CUTTING ROOM
+              │     CUTTING ROOM     │
               └──────────────────────┘
                         │
                         ▼
