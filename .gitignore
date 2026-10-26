@@ -30,8 +30,10 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files (keep the example files committed)
 .env*
+!.env.example
+!.env.local.example
 
 # vercel
 .vercel
@@ -45,3 +47,10 @@ next-env.d.ts
 !/data/uploads/.gitkeep
 /data/output/*
 !/data/output/.gitkeep
+
+# media anywhere in the repo
+*.mp4
+*.mkv
+*.mov
+*.mp3
+*.wav
