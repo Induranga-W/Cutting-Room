@@ -54,3 +54,26 @@ next-env.d.ts
 *.mov
 *.mp3
 *.wav
+*.webm
+*.avi
+*.m4a
+*.aac
+*.flac
+*.ogg
+*.srt
+
+# generated frames/thumbnails inside data (not public/)
+/data/**/*.jpg
+/data/**/*.jpeg
+/data/**/*.png
+/data/**/*.gif
+
+# editor / OS
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
+
+# python leftovers
+__pycache__/
+*.pyc
