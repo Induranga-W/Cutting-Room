@@ -8,10 +8,12 @@ const globalForJobs = globalThis as unknown as { __CUTTING_ROOM_JOBS__?: Map<str
 const jobs = globalForJobs.__CUTTING_ROOM_JOBS__ ?? new Map<string, JobRecord>();
 globalForJobs.__CUTTING_ROOM_JOBS__ = jobs;
 
-export function createJobRecord(id: string, hasScript: boolean): JobRecord {
+export function createJobRecord(id: string, hasScript: boolean, hasTarget = false): JobRecord {
   const steps: JobRecord["steps"] = {};
   for (const name of PIPELINE_STEP_NAMES) {
-    steps[name] = name === "script_bot" && !hasScript ? "skipped" : "pending";
+    const skipped =
+      (name === "script_bot" && !hasScript) || (name === "highlight_bot" && !hasTarget);
+    steps[name] = skipped ? "skipped" : "pending";
   }
   const record: JobRecord = {
     id,

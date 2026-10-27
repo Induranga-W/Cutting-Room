@@ -1,5 +1,6 @@
 import { Bot, EditJob, ProgressCallback } from "../types";
-import { ffmpeg, FFMPEG } from "../ffmpeg";
+import { ffmpeg, ffprobeDuration, FFMPEG } from "../ffmpeg";
+import fs from "fs";
 import path from "path";
 
 interface Preset {
@@ -10,6 +11,10 @@ interface Preset {
   suffix: string;
 }
 
+/** Vertical (9:16) output fills the frame by scaling up and center-cropping,
+ * instead of letterboxing a 16:9 source into a thin strip with black bars. */
+const VERTICAL_FILL = "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920";
+
 export const PRESETS: Record<string, Preset> = {
   youtube: {
     vf: "scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2",
@@ -19,14 +24,14 @@ export const PRESETS: Record<string, Preset> = {
     suffix: "_youtube_1080p.mp4",
   },
   tiktok: {
-    vf: "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2",
+    vf: VERTICAL_FILL,
     crf: "20",
     preset: "fast",
     audioBr: "128k",
     suffix: "_tiktok_9x16.mp4",
   },
   reels: {
-    vf: "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2",
+    vf: VERTICAL_FILL,
     crf: "20",
     preset: "fast",
     audioBr: "128k",
@@ -77,7 +82,15 @@ export const ExportBot: Bot = {
     ]);
 
     job.finalPath = outPath;
-    progress(this.name, `wrote ${path.basename(outPath)}`);
+    let summary = "";
+    try {
+      const secs = Math.round(await ffprobeDuration(outPath));
+      const mb = (fs.statSync(outPath).size / 1048576).toFixed(1);
+      summary = ` (${Math.floor(secs / 60)}m ${secs % 60}s, ${mb} MB)`;
+    } catch {
+      // summary is cosmetic
+    }
+    progress(this.name, `wrote ${path.basename(outPath)}${summary}`);
     return job;
   },
 };

@@ -18,6 +18,7 @@ interface JobState {
 
 const STEP_ORDER = [
   "script_bot",
+  "highlight_bot",
   "cutter_bot",
   "transition_bot",
   "subtitle_bot",
@@ -28,6 +29,7 @@ const STEP_ORDER = [
 
 const STEP_LABELS: Record<string, string> = {
   script_bot: "Script",
+  highlight_bot: "Highlights",
   cutter_bot: "Cutter",
   transition_bot: "Transitions",
   subtitle_bot: "Captions",
@@ -75,6 +77,7 @@ export default function Home() {
   const [script, setScript] = useState("");
   const [platform, setPlatform] = useState<Platform>("youtube");
   const [style, setStyle] = useState<Style>("dynamic");
+  const [targetDuration, setTargetDuration] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [job, setJob] = useState<JobState | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -110,6 +113,7 @@ export default function Home() {
     fd.append("script", script);
     fd.append("platform", platform);
     fd.append("style", style);
+    if (targetDuration.trim()) fd.append("targetDuration", targetDuration.trim());
 
     setSubmitting(true);
     setJob(null);
@@ -245,6 +249,25 @@ export default function Home() {
                 <option value="cinematic">Cinematic</option>
               </select>
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm mb-1.5">Target length in seconds (optional)</label>
+            <input
+              type="number"
+              min={5}
+              max={600}
+              value={targetDuration}
+              onChange={(e) => setTargetDuration(e.target.value)}
+              placeholder="e.g. 60"
+              className="w-full rounded-sm bg-[var(--panel-raised)] border border-[var(--line)] px-3 py-2 text-sm placeholder:text-[var(--muted)] focus:outline-none focus:border-[var(--amber)]"
+            />
+            {Number(targetDuration) > 0 && (
+              <p className="text-xs text-[var(--muted)] mt-1">
+                = {Math.floor(Math.min(Number(targetDuration), 600) / 60)}m{" "}
+                {Math.round(Math.min(Number(targetDuration), 600) % 60)}s (seconds, max 600)
+              </p>
+            )}
           </div>
 
           {error && <p className="text-sm text-[var(--error)]">{error}</p>}

@@ -1,6 +1,6 @@
 import { Bot, EditJob, ProgressCallback } from "../types";
 import { ffmpeg, FFMPEG } from "../ffmpeg";
-import { generateText, hasGemini } from "../gemini";
+import { generateText, hasGemini, GEMINI_MODEL } from "../gemini";
 import path from "path";
 
 const LOOKS: Record<string, string> = {
@@ -44,7 +44,7 @@ A "high energy" or "exciting" mood suits vibrant/dynamic/high_energy looks.
 
 Return ONLY the look name as plain text, nothing else. Example: vibrant`;
 
-  const raw = await generateText("gemini-2.0-flash", prompt);
+  const raw = await generateText(GEMINI_MODEL, prompt);
   if (!raw) return fallback;
   const look = raw.trim().replace(/^["']|["']$/g, "").toLowerCase();
   return look in LOOKS ? look : fallback;

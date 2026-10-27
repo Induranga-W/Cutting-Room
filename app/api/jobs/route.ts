@@ -44,6 +44,12 @@ export async function POST(req: NextRequest) {
   const platform = VALID_PLATFORMS.includes(platformRaw as Platform) ? (platformRaw as Platform) : "youtube";
   const style = VALID_STYLES.includes(styleRaw as Style) ? (styleRaw as Style) : "dynamic";
 
+  const targetRaw = Number(form.get("targetDuration"));
+  const targetDurationS =
+    Number.isFinite(targetRaw) && targetRaw > 0
+      ? Math.min(Math.max(Math.round(targetRaw), 5), 600)
+      : undefined;
+
   const jobId = randomUUID().slice(0, 10);
   const jobUploadDir = path.join(UPLOADS_DIR, jobId);
   const jobOutputDir = path.join(OUTPUT_DIR, jobId);
@@ -60,7 +66,7 @@ export async function POST(req: NextRequest) {
     musicPath = await saveUpload(musicFile, jobUploadDir);
   }
 
-  createJobRecord(jobId, Boolean(script.trim()));
+  createJobRecord(jobId, Boolean(script.trim()), targetDurationS !== undefined);
 
   const job = createJob({
     clips: clipPaths,
@@ -68,6 +74,7 @@ export async function POST(req: NextRequest) {
     musicPath,
     platform,
     style,
+    targetDurationS,
     outputDir: jobOutputDir,
   });
 

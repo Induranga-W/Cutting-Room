@@ -1,5 +1,5 @@
 import { Bot, EditJob, ProgressCallback, Scene } from "../types";
-import { ffmpeg, ffprobeDuration, FFMPEG, FFPROBE } from "../ffmpeg";
+import { ffmpeg, ffprobeVideoDuration, FFMPEG, FFPROBE } from "../ffmpeg";
 import path from "path";
 
 // Maps a scene's requested transition (from ScriptBot) to an ffmpeg xfade
@@ -90,14 +90,26 @@ export const TransitionBot: Bot = {
 };
 
 async function renderXfadeChain(segments: string[], plan: PlanStep[], outPath: string) {
-  const durations = await Promise.all(segments.map((s) => ffprobeDuration(s)));
+  // Video-stream durations (not container durations) so xfade offsets line up.
+  const durations = await Promise.all(segments.map((s) => ffprobeVideoDuration(s)));
 
   const inputs: string[] = [];
   for (const s of segments) inputs.push("-i", s);
 
   const filterParts: string[] = [];
-  let vLabel = "0:v";
-  let aLabel = "0:a";
+
+  // Normalise every input to the same frame rate, timebase, pixel format and
+  // audio layout first, so xfade / concat / acrossfade never see mismatched
+  // streams when different transition types are chained together.
+  for (let i = 0; i < segments.length; i++) {
+    filterParts.push(`[${i}:v]fps=30,format=yuv420p,setsar=1,setpts=PTS-STARTPTS[nv${i}]`);
+    filterParts.push(
+      `[${i}:a]aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo,asetpts=PTS-STARTPTS[na${i}]`
+    );
+  }
+
+  let vLabel = "nv0";
+  let aLabel = "na0";
   let cursor = durations[0];
 
   for (let i = 0; i < plan.length; i++) {
@@ -108,17 +120,20 @@ async function renderXfadeChain(segments: string[], plan: PlanStep[], outPath: s
     const outA = `a${nextIdx}`;
 
     if (step.xfade === null) {
-      // Hard cut: just concat this pair, no overlap.
-      filterParts.push(`[${vLabel}][${nextIdx}:v]concat=n=2:v=1:a=0[${outV}]`);
-      filterParts.push(`[${aLabel}][${nextIdx}:a]concat=n=2:v=0:a=1[${outA}]`);
+      // Hard cut: concat this pair, no overlap. fps/format/setsar after the
+      // concat reset the timebase so a later xfade sees matching inputs.
+      filterParts.push(
+        `[${vLabel}][nv${nextIdx}]concat=n=2:v=1:a=0,fps=30,format=yuv420p,setsar=1[${outV}]`
+      );
+      filterParts.push(`[${aLabel}][na${nextIdx}]concat=n=2:v=0:a=1[${outA}]`);
       cursor = cursor + durations[nextIdx];
     } else {
       const offset = Math.max(cursor - dur, 0);
       filterParts.push(
-        `[${vLabel}][${nextIdx}:v]xfade=transition=${step.xfade}:duration=${dur}:offset=${offset.toFixed(3)}[${outV}]`
+        `[${vLabel}][nv${nextIdx}]xfade=transition=${step.xfade}:duration=${dur}:offset=${offset.toFixed(3)},format=yuv420p[${outV}]`
       );
-      filterParts.push(`[${aLabel}][${nextIdx}:a]acrossfade=d=${dur}[${outA}]`);
-      cursor = offset + dur + (durations[nextIdx] - dur);
+      filterParts.push(`[${aLabel}][na${nextIdx}]acrossfade=d=${dur}[${outA}]`);
+      cursor = offset + durations[nextIdx];
     }
 
     vLabel = outV;

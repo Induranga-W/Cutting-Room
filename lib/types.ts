@@ -7,6 +7,12 @@ export interface Scene {
   start_s: number;
   end_s?: number;
   caption?: string;
+  /** What happens in this moment (from video analysis), for the log. */
+  note?: string;
+  /** Horizontal focus of the main subject, 0 (left) to 1 (right), used to
+   * reframe wide footage into 9:16. focus_x_end pans to a new position. */
+  focus_x?: number;
+  focus_x_end?: number;
   transition_out?: "cut" | "fade" | "dissolve" | "zoom" | "wipe" | "slide";
   is_hook?: boolean;
 }
@@ -25,6 +31,8 @@ export interface EditJob {
   platform: Platform;
   style: Style;
   outputDir: string;
+  /** Desired final length in seconds (optional). */
+  targetDurationS?: number;
 
   scenePlan: ScenePlan;
   trimmedClips: string[];
@@ -43,6 +51,7 @@ export function createJob(params: {
   platform: Platform;
   style: Style;
   outputDir: string;
+  targetDurationS?: number;
 }): EditJob {
   return {
     ...params,

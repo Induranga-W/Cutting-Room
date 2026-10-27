@@ -1,6 +1,7 @@
 import fs from "fs";
 import { Bot, EditJob, ProgressCallback } from "./types";
 import { ScriptBot } from "./bots/scriptBot";
+import { HighlightBot } from "./bots/highlightBot";
 import { CutterBot } from "./bots/cutterBot";
 import { TransitionBot } from "./bots/transitionBot";
 import { SubtitleBot } from "./bots/subtitleBot";
@@ -18,14 +19,27 @@ import { ExportBot } from "./bots/exportBot";
  * with transitions) before "polish" (captions, audio, color), then a
  * final platform-specific export pass.
  */
-const PIPELINE: Bot[] = [ScriptBot, CutterBot, TransitionBot, SubtitleBot, AudioBot, ColorBot, ExportBot];
+const PIPELINE: Bot[] = [
+  ScriptBot,
+  HighlightBot,
+  CutterBot,
+  TransitionBot,
+  SubtitleBot,
+  AudioBot,
+  ColorBot,
+  ExportBot,
+];
 
 function planSteps(job: EditJob): Bot[] {
   // Deterministic step selection — cheaper and more reliable than asking
   // an LLM to decide the pipeline shape every run. The LLM's creativity is
   // spent inside each bot (script/color choices), not on deciding whether
   // CutterBot should run.
-  return job.script ? PIPELINE : PIPELINE.filter((b) => b !== ScriptBot);
+  return PIPELINE.filter((b) => {
+    if (b === ScriptBot) return Boolean(job.script);
+    if (b === HighlightBot) return Boolean(job.targetDurationS);
+    return true;
+  });
 }
 
 export async function runOrchestrator(

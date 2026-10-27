@@ -1,5 +1,5 @@
 import { Bot, EditJob, ScenePlan, ProgressCallback } from "../types";
-import { generateText, hasGemini } from "../gemini";
+import { generateText, hasGemini, getLastGeminiError, GEMINI_MODEL } from "../gemini";
 
 const PLATFORM_HINTS: Record<string, string> = {
   youtube: "16:9, up to 15 minutes, strong hook in first 30 s, can breathe more between cuts",
@@ -30,6 +30,9 @@ export const ScriptBot: Bot = {
     }
 
     const hint = PLATFORM_HINTS[job.platform] ?? "";
+    const targetLine = job.targetDurationS
+      ? `Target total length: about ${job.targetDurationS} seconds (scene durations must add up to roughly this).\n`
+      : "";
     const prompt = `
 You are an expert short-form video editor with a strong sense of pacing
 and rhythm — not a mechanical scene-splitter. Given the script and
@@ -37,7 +40,7 @@ available clips, produce a creative, pacing-aware JSON scene plan.
 
 Platform: ${job.platform} (${hint})
 Editing style requested: ${job.style}
-Available clips (by index): ${JSON.stringify(job.clips.map((c, i) => [i, c]))}
+${targetLine}Available clips (by index): ${JSON.stringify(job.clips.map((c, i) => [i, c]))}
 
 Script:
 ${job.script}
@@ -78,9 +81,10 @@ Return a JSON object with this shape (no markdown fences):
   ]
 }`;
 
-    const raw = await generateText("gemini-2.5-flash", prompt);
+    const raw = await generateText(GEMINI_MODEL, prompt);
     if (!raw) {
-      progress(this.name, "Gemini call failed — falling back to whole clips.");
+      const reason = getLastGeminiError() ?? "empty response";
+      progress(this.name, `Gemini call failed (${reason}) — no scene plan produced.`);
       return job;
     }
 

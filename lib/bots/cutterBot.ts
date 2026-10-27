@@ -1,8 +1,15 @@
 import { Bot, EditJob, ProgressCallback } from "../types";
-import { ffmpeg, FFMPEG, ffprobeHasAudio } from "../ffmpeg";
+import { ffmpeg, FFMPEG, ffprobeHasAudio, ffprobeDuration } from "../ffmpeg";
 import { platformScaleFilter } from "./exportBot";
 import fs from "fs";
 import path from "path";
+
+function fmtDur(seconds: number): string {
+  const total = Math.round(seconds);
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  return m > 0 ? `${m}m ${s}s` : `${s}s`;
+}
 
 /** Builds the trim + normalize args for one segment, synthesizing silent
  * audio for clips that don't have an audio track so every segment has both
@@ -94,6 +101,29 @@ export const CutterBot: Bot = {
         paths.push(outPath);
       }
     } else {
+      // No scene plan: every clip would be used whole. If the user asked for a
+      // specific length, refuse to silently re-encode hours of footage and
+      // hand back the original.
+      let totalS = 0;
+      try {
+        for (const c of job.clips) totalS += await ffprobeDuration(c);
+      } catch {
+        totalS = 0; // ffprobe unavailable: can't check, carry on
+      }
+      const target = job.targetDurationS;
+      if (target && totalS > target * 1.5 + 5) {
+        throw new Error(
+          `No scene plan was produced, so nothing says which ${fmtDur(target)} of the ${fmtDur(totalS)} source to keep. ` +
+            "Check the highlight_bot and script_bot log lines above for the reason."
+        );
+      }
+      if (!target && (job.platform === "reels" || job.platform === "tiktok") && totalS > 120) {
+        progress(
+          this.name,
+          `warning: no scene plan and no target length, so the output will be the full ${fmtDur(totalS)}.`
+        );
+      }
+
       for (let i = 0; i < job.clips.length; i++) {
         const outPath = path.join(segDir, `scene_${String(i).padStart(3, "0")}.mp4`);
         const args = await buildTrimArgs(job.clips[i], 0, undefined, vf, outPath);
@@ -103,7 +133,16 @@ export const CutterBot: Bot = {
     }
 
     job.trimmedClips = paths;
-    progress(this.name, `wrote ${paths.length} segment(s) to segments/`);
+    let outS = 0;
+    try {
+      for (const p of paths) outS += await ffprobeDuration(p);
+    } catch {
+      outS = 0;
+    }
+    progress(
+      this.name,
+      `wrote ${paths.length} segment(s) to segments/${outS > 0 ? ` (total ${fmtDur(outS)})` : ""}`
+    );
     return job;
   },
 };

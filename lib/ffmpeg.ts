@@ -16,7 +16,7 @@ export function run(bin: string, args: string[]): Promise<string> {
     proc.on("close", (code) => {
       if (code === 0) resolve(stdout);
       else {
-        const tail = stderr.trim().split("\n").slice(-8).join("\n");
+        const tail = stderr.trim().split("\n").slice(-20).join("\n");
         reject(new Error(`${bin} exited with code ${code}\n${tail}`));
       }
     });
@@ -41,6 +41,31 @@ export async function ffprobeDuration(path: string): Promise<number> {
   ]);
   const parsed = JSON.parse(out);
   return parseFloat(parsed.format.duration);
+}
+
+/** Duration of the first video stream (falls back to the container duration).
+ * The container duration includes audio padding, which would throw off
+ * xfade offsets when stitching segments. */
+export async function ffprobeVideoDuration(path: string): Promise<number> {
+  if (!FFPROBE) throw new Error("ffprobe not found on PATH");
+  try {
+    const out = await run(FFPROBE, [
+      "-v",
+      "error",
+      "-select_streams",
+      "v:0",
+      "-show_entries",
+      "stream=duration",
+      "-of",
+      "json",
+      path,
+    ]);
+    const d = parseFloat(JSON.parse(out).streams?.[0]?.duration);
+    if (Number.isFinite(d) && d > 0) return d;
+  } catch {
+    // fall through to the container duration
+  }
+  return ffprobeDuration(path);
 }
 
 export async function ffprobeHasAudio(path: string): Promise<boolean> {
