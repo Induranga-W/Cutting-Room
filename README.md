@@ -167,7 +167,7 @@ Go to **http://localhost:3000** — you'll see the upload screen.
 
 ---
 
-## Running it for real use (not just testing)
+## Running it for real use (not just testing) ----
 
 ```bash
 npm run build
