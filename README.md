@@ -151,7 +151,7 @@ Go to **http://localhost:3000** — you'll see the upload screen.
 
 ---
 
-## Using it
+## Using it ----
 
 1. **Upload clips** — pick one or more video files, in any order.
 2. **(Optional) Add music** — one audio file to play under the video.
