@@ -34,7 +34,7 @@ final export — so you don't have to do it by hand.
 
 ---
 
-## What it actually does
+## What it actually does ----
 
 Think of it like a real editing room with seven specialists, each waiting
 for the previous one to hand off their work:
